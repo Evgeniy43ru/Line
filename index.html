@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Линейная регрессия — интерактивная теория и практика</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #f0f5fc 0%, #e6eefa 100%);
+            color: #1e2b3a;
+            line-height: 1.7;
+            padding: 2rem 1.5rem;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        /* === Шапка === */
+        .hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            border-radius: 36px;
+            padding: 3rem 2.5rem;
+            margin-bottom: 2.5rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 20, 60, 0.45);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -60%; right: -5%;
+            width: 550px; height: 550px;
+            background: radial-gradient(circle, rgba(100, 181, 246, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -40%; left: -5%;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(255, 193, 7, 0.12) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero-content { position: relative; z-index: 1; }
+
+        .hero h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .hero h1 i { font-size: 2.6rem; color: #64b5f6; }
+
+        .hero p {
+            font-size: 1.15rem;
+            max-width: 800px;
+            color: #b8cce4;
+            margin-bottom: 1.8rem;
+        }
+
+        .hero-formula {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            padding: 1rem 1.8rem;
+            border-radius: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            color: #e3f2fd;
+            font-weight: 600;
+        }
+
+        .hero-formula .y-hat { color: #64b5f6; }
+        .hero-formula .accent { color: #ffc107; }
+
+        /* === Секции === */
+        .section {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 32px;
+            padding: 2.5rem 2.2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 20px 40px -15px rgba(0, 30, 70, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+        }
+
+        .section-title {
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: #0b2b4e;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            letter-spacing: -0.02em;
+        }
+
+        .section-title i { color: #0f3460; font-size: 1.7rem; }
+
+        .section-subtitle {
+            color: #4a5f7a;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            padding-left: 3.2rem;
+        }
+
+        /* === Теория === */
+        .theory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .theory-card {
+            background: linear-gradient(145deg, #ffffff, #f6faff);
+            border-radius: 22px;
+            padding: 1.7rem;
+            border: 1px solid #d9e6f5;
+            transition: all 0.3s ease;
+        }
+
+        .theory-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px -10px rgba(15, 52, 96, 0.2);
+            border-color: #a8c9ec;
+        }
+
+        .theory-card h3 {
+            font-size: 1.15rem;
+            color: #0b2b4e;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theory-card h3 i {
+            color: #0f3460;
+            font-size: 1rem;
+            width: 32px; height: 32px;
+            background: #e8f0fe;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .theory-card p { font-size: 0.92rem; color: #3a4f66; }
+        .theory-card p + p { margin-top: 0.6rem; }
+
+        .formula-box {
+            background: #0f1729;
+            color: #e3f2fd;
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            margin-top: 0.9rem;
+            overflow-x: auto;
+            line-height: 1.9;
+            border: 1px solid #1e3a5f;
+        }
+
+        .formula-box .var { color: #64b5f6; font-weight: 600; }
+        .formula-box .op { color: #ffc107; }
+
+        .mck-box {
+            background: linear-gradient(135deg, #e8f4fd 0%, #f0f8ff 100%);
+            border: 1px solid #b8d9f5;
+            border-radius: 20px;
+            padding: 1.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .mck-box h4 {
+            color: #0b2b4e;
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mck-box h4 i { color: #1976d2; }
+        .mck-box p { font-size: 0.92rem; color: #3a4f66; margin-bottom: 0.6rem; }
+
+        /* === Основная сетка === */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 1050px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+
+        /* === График === */
+        .chart-panel {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 1.8rem;
+            border: 1px solid #d9e6f5;
+            box-shadow: 0 10px 25px -12px rgba(15, 52, 96, 0.15);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chart-header h3 {
+            font-size: 1.15rem;
+            color: #0b2b4e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-header h3 i { color: #1976d2; }
+
+        .chart-legend {
+            display: flex;
+            gap: 14px;
+            font-size: 0.8rem;
+            color: #4a5f7a;
+            flex-wrap: wrap;
+        }
+
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .legend-line { width: 20px; height: 3px; border-radius: 2px; }
+
+        #regressionChart {
+            width: 100%;
+            height: 460px;
+            display: block;
+            border-radius: 12px;
+            cursor: crosshair;
+            touch-action: none;
+            user-select: none;
+        }
+
+        /* Тулбар графика */
+        .chart-toolbar {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.8rem;
+            padding: 0.6rem 0.8rem;
+            background: #f5faff;
+            border-radius: 12px;
+            border: 1px solid #e0ecfa;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #4a5f7a;
+        }
+
+        .chart-toolbar .mode-btn {
+            background: white;
+            border: 1px solid #c8ddf5;
+            color: #4a5f7a;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chart-toolbar .mode-btn:hover {
+            background: #e8f4fd;
+            border-color: #64b5f6;
+        }
+
+        .chart-toolbar .mode-btn.active {
+            background: linear-gradient(135deg, #1976d2, #0f3460);
+            color: white;
+            border-color: #0f3460;
+            box-shadow: 0 4px 12px -4px rgba(25, 118, 210, 0.4);
+        }
+
+        .chart-toolbar .separator {
+            width: 1px;
+            height: 22px;
+            background: #c8ddf5;
+            margin: 0 4px;
+        }
+
+        .chart-hint {
+            font-size: 0.75rem;
+            color: #6b7f96;
+            font-style: italic;
+            margin-left: auto;
+        }
+
+        /* Управление ручной линией */
+        .manual-line-controls {
+            display: none;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 0.8rem;
+            padding: 0.7rem 1rem;
+            background: #fff8e6;
+            border-radius: 12px;
+            border: 1px solid #ffe4a3;
+            font-size: 0.82rem;
+            color: #6b4a00;
+            align-items: center;
+        }
+
+        .manual-line-controls.visible { display: flex; }
+
+        .manual-line-controls input[type="range"] {
+            flex: 1;
+            min-width: 100px;
+            accent-color: #1976d2;
+        }
+
+        .manual-line-controls label {
+            font-weight: 600;
+            min-width: 40px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .manual-line-controls .val {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #b87400;
+            min-width: 55px;
+            text-align: right;
+        }
+
+        .chart-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+            margin-top: 1.2rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid #e8f0f8;
+        }
+
+        .chart-info-item {
+            text-align: center;
+            background: #f5faff;
+            padding: 0.7rem 0.5rem;
+            border-radius: 12px;
+            border: 1px solid #e0ecfa;
+        }
+
+        .chart-info-item .lbl {
+            font-size: 0.72rem;
+            color: #6b7f96;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .chart-info-item .val {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #0f3460;
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: 2px;
+        }
+
+        /* === Таблица === */
+        .table-panel {
+            background: #ffffff;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid #d9e6f5;
+            box-shadow: 0 10px 25px -12px rgba(15, 52, 96, 0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #0f3460, #1a4a7a);
+            color: white;
+            padding: 1.1rem 1.4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .table-header h3 {
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .table-actions { display: flex; gap: 0.5rem; }
+
+        .tbl-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tbl-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .data-table-wrapper {
+            overflow-y: auto;
+            max-height: 440px;
+            flex: 1;
+        }
+
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        table.data-table thead { position: sticky; top: 0; z-index: 2; }
+
+        table.data-table th {
+            background: #e8f0fe;
+            color: #0f3460;
+            font-weight: 600;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            padding: 0.85rem 0.8rem;
+            border-bottom: 2px solid #b8d4f0;
+            text-align: left;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        table.data-table th.sortable {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        table.data-table th.sortable:hover {
+            background: #d4e6ff;
+        }
+
+        table.data-table th .sort-icon {
+            margin-left: 6px;
+            font-size: 0.7rem;
+            opacity: 0.4;
+            transition: opacity 0.2s;
+        }
+
+        table.data-table th.sorted .sort-icon { opacity: 1; color: #1976d2; }
+
+        table.data-table th:first-child { padding-left: 1.2rem; }
+
+        table.data-table td {
+            padding: 0.7rem 0.8rem;
+            border-bottom: 1px solid #edf3fa;
+            color: #1e2b3a;
+            font-weight: 500;
+        }
+
+        table.data-table td:first-child {
+            padding-left: 1.2rem;
+            color: #6b7f96;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        table.data-table tbody tr { transition: background 0.15s; }
+        table.data-table tbody tr:hover td { background: #f5faff; }
+
+        table.data-table tbody tr.dragging {
+            opacity: 0.4;
+            background: #e8f4fd !important;
+        }
+
+        table.data-table tbody tr.drag-over td {
+            border-top: 2px solid #1976d2;
+        }
+
+        table.data-table td.editable {
+            cursor: cell;
+            position: relative;
+        }
+
+        table.data-table td.editable:hover {
+            background: #e8f4fd !important;
+            box-shadow: inset 0 0 0 1px #64b5f6;
+        }
+
+        table.data-table td.editing { padding: 0; }
+
+        table.data-table td.editing input {
+            width: 100%;
+            border: 2px solid #1976d2;
+            padding: 0.65rem 0.8rem;
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: inherit;
+            outline: none;
+            background: white;
+            color: #0f3460;
+            text-align: center;
+        }
+
+        table.data-table tr.row-new td {
+            background: #fff8e1;
+            animation: flash 1s ease-out;
+        }
+
+        @keyframes flash {
+            0% { background: #ffe082; }
+            100% { background: #fff8e1; }
+        }
+
+        /* Ручка перетаскивания строк */
+        .drag-handle {
+            display: inline-block;
+            margin-right: 8px;
+            color: #b8c8d8;
+            cursor: grab;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .drag-handle:hover { color: #1976d2; }
+        .drag-handle:active { cursor: grabbing; }
+
+        .table-footer {
+            background: #f5f9fd;
+            padding: 0.9rem 1.4rem;
+            font-size: 0.8rem;
+            color: #4a5f7a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-top: 1px solid #e0ecfa;
+        }
+
+        .table-footer .hint {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .table-footer .hint i { color: #1976d2; }
+
+        /* === Результаты === */
+        .results-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1.8rem;
+        }
+
+        .result-card {
+            background: linear-gradient(145deg, #ffffff, #f6faff);
+            border: 1px solid #d9e6f5;
+            border-radius: 18px;
+            padding: 1.2rem 1.3rem;
+            transition: all 0.25s;
+        }
+
+        .result-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px -10px rgba(15, 52, 96, 0.18);
+        }
+
+        .result-card .rc-label {
+            font-size: 0.72rem;
+            color: #6b7f96;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .result-card .rc-label i { color: #1976d2; font-size: 0.75rem; }
+
+        .result-card .rc-value {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #0f3460;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.5px;
+        }
+
+        .result-card .rc-sub {
+            font-size: 0.75rem;
+            color: #7a8a9e;
+            margin-top: 3px;
+        }
+
+        .result-card.highlight {
+            background: linear-gradient(135deg, #e8f5e9, #f0f9f3);
+            border-color: #a8d5b8;
+        }
+
+        .result-card.highlight .rc-value { color: #1b5e20; }
+
+        /* === Шаги === */
+        .steps { display: grid; gap: 1rem; margin-top: 1rem; }
+
+        .step {
+            display: flex;
+            gap: 1.2rem;
+            align-items: flex-start;
+            background: #f8fbff;
+            border-radius: 16px;
+            padding: 1.3rem 1.5rem;
+            border: 1px solid #e0ecfa;
+            transition: all 0.25s;
+        }
+
+        .step:hover { border-color: #a8c9ec; background: #f2f8ff; }
+
+        .step-num {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #0f3460, #1976d2);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            color: #0b2b4e;
+            font-size: 0.98rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .step-content p { font-size: 0.88rem; color: #4a5f7a; }
+
+        .step-content code {
+            background: #0f1729;
+            color: #64b5f6;
+            padding: 0.15rem 0.5rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff8e6 0%, #ffefd0 100%);
+            border-left: 5px solid #f0a500;
+            border-radius: 16px;
+            padding: 1.5rem 1.8rem;
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .warning-box i {
+            color: #f0a500;
+            font-size: 1.6rem;
+            flex-shrink: 0;
+            margin-top: 3px;
+        }
+
+        .warning-box h4 { color: #8a5a00; font-size: 1.02rem; margin-bottom: 0.4rem; }
+        .warning-box p { color: #6b4a00; font-size: 0.88rem; }
+
+        /* === Архив ссылок === */
+        .archive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .archive-card {
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(145deg, #ffffff, #f6faff);
+            border: 1px solid #d9e6f5;
+            border-radius: 22px;
+            padding: 1.6rem 1.7rem;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .archive-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 5px; height: 100%;
+            background: linear-gradient(180deg, #1976d2, #0f3460);
+            transform: scaleY(0);
+            transform-origin: top;
+            transition: transform 0.35s ease;
+        }
+
+        .archive-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 22px 40px -15px rgba(15, 52, 96, 0.28);
+            border-color: #a8c9ec;
+        }
+
+        .archive-card:hover::before { transform: scaleY(1); }
+
+        .archive-card .arch-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #e8f0fe, #d4e6ff);
+            color: #1976d2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            transition: transform 0.35s;
+        }
+
+        .archive-card:hover .arch-icon { transform: scale(1.1) rotate(-5deg); }
+
+        .archive-card .arch-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            align-self: flex-start;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 0.22rem 0.7rem;
+            border-radius: 40px;
+            margin-bottom: 0.8rem;
+        }
+
+        .arch-tag.tag-blog { background: #e8f0fe; color: #1976d2; }
+        .arch-tag.tag-sql { background: #e6f7ee; color: #1b5e20; }
+        .arch-tag.tag-excel { background: #e6f7ee; color: #185c37; }
+
+        .archive-card h4 {
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: #0b2b4e;
+            margin-bottom: 0.5rem;
+        }
+
+        .archive-card p {
+            font-size: 0.87rem;
+            color: #4a5f7a;
+            line-height: 1.55;
+            flex: 1;
+            margin-bottom: 1rem;
+        }
+
+        .archive-card .arch-url {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: #7a8a9e;
+            word-break: break-all;
+            padding-top: 0.8rem;
+            border-top: 1px dashed #d9e6f5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .archive-card .arch-url i {
+            color: #1976d2;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            transition: transform 0.25s;
+        }
+
+        .archive-card:hover .arch-url i { transform: translateX(4px); }
+
+        .arch-counter {
+            position: absolute;
+            top: 1.1rem; right: 1.2rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #1976d2;
+            background: #e8f0fe;
+            padding: 0.18rem 0.6rem;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.25s;
+        }
+
+        .archive-card:hover .arch-counter {
+            background: #1976d2;
+            color: white;
+        }
+
+        .archive-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 1.3rem;
+            font-size: 0.82rem;
+            color: #6b7f96;
+            padding: 0.9rem 1.2rem;
+            background: #f5faff;
+            border-radius: 14px;
+            border: 1px dashed #c8ddf5;
+        }
+
+        .archive-info i { color: #1976d2; font-size: 0.95rem; }
+
+        /* === Подвал === */
+        .footer {
+            text-align: center;
+            padding: 2.5rem 1rem 1rem;
+            color: #5f7188;
+            font-size: 0.88rem;
+        }
+
+        .footer .heart { color: #e53935; }
+
+        /* === Адаптив === */
+        @media (max-width: 700px) {
+            body { padding: 1rem 0.7rem; }
+            .hero { padding: 2rem 1.5rem; border-radius: 24px; }
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 1rem; }
+            .hero-formula { font-size: 1rem; padding: 0.7rem 1.2rem; }
+            .section { padding: 1.6rem 1.2rem; border-radius: 22px; }
+            .section-title { font-size: 1.4rem; }
+            .section-subtitle { padding-left: 0; font-size: 0.9rem; }
+            .chart-info { grid-template-columns: 1fr; }
+            .chart-panel, .table-panel { padding: 1.2rem; }
+            #regressionChart { height: 340px; }
+            .table-actions .tbl-btn span { display: none; }
+            .table-actions .tbl-btn { padding: 0.4rem 0.55rem; }
+            .archive-card { padding: 1.4rem 1.3rem; }
+            .chart-hint { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ШАПКА -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1><i class="fas fa-chart-line"></i> Линейная регрессия</h1>
+            <p>Метод моделирования зависимости одной переменной от другой с помощью прямой линии. Изучите теорию, поработайте с таблицей и графиком — всё редактируется прямо на странице.</p>
+            <div class="hero-formula">
+                <span class="y-hat">ŷ</span> = <span class="accent">a</span> + <span class="accent">b</span> · x
+            </div>
+        </div>
+    </div>
+
+    <!-- ТЕОРИЯ -->
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-book-open"></i> Теория простыми словами</h2>
+        <p class="section-subtitle">Что такое линейная регрессия, зачем она нужна и как её построить.</p>
+
+        <div class="theory-grid">
+            <div class="theory-card">
+                <h3><i class="fas fa-lightbulb"></i> Основная идея</h3>
+                <p><strong>Линейная регрессия</strong> — это способ предсказать значение одной переменной (<em>y</em>) на основе значения другой переменной (<em>x</em>), предполагая, что между ними существует <strong>линейная зависимость</strong>.</p>
+                <p>Например: зная, сколько часов студент учится, мы можем предсказать его оценку. Или по температуре воздуха — сколько мороженого будет продано.</p>
+            </div>
+
+            <div class="theory-card">
+                <h3><i class="fas fa-square-root-variable"></i> Уравнение прямой</h3>
+                <p>Модель описывается уравнением прямой линии:</p>
+                <div class="formula-box">
+                    <span class="var">ŷ</span> = <span class="var">a</span> <span class="op">+</span> <span class="var">b</span> · <span class="var">x</span>
+                </div>
+                <p style="margin-top:0.7rem;">
+                    <strong>ŷ</strong> — предсказанное значение<br>
+                    <strong>a</strong> — свободный член<br>
+                    <strong>b</strong> — угловой коэффициент
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3><i class="fas fa-arrows-left-right"></i> Что означает b</h3>
+                <p>Коэффициент <strong>b</strong> показывает, насколько изменится <em>y</em>, если <em>x</em> увеличится на 1 единицу.</p>
+                <p>Если b = 0.5, то при росте x на 1, y увеличится на 0.5. Если b отрицательный — с ростом x, y падает.</p>
+            </div>
+
+            <div class="theory-card">
+                <h3><i class="fas fa-crosshairs"></i> Что означает a</h3>
+                <p>Свободный член <strong>a</strong> — это значение ŷ, когда x = 0. Геометрически — точка, в которой прямая пересекает вертикальную ось.</p>
+                <p>Иногда <em>a</em> не имеет физического смысла, но он нужен для правильного положения линии.</p>
+            </div>
+        </div>
+
+        <div class="mck-box">
+            <h4><i class="fas fa-ruler-combined"></i> Метод наименьших квадратов (МНК)</h4>
+            <p>Как найти «лучшую» прямую? Мы хотим, чтобы она проходила <strong>как можно ближе</strong> ко всем точкам данных. Расстояние по вертикали от точки до прямой называется <strong>остатком</strong>.</p>
+            <p>МНК минимизирует сумму квадратов всех остатков. Из этого условия получаются формулы для a и b:</p>
+            <div class="formula-box">
+                <span class="var">b</span> <span class="op">=</span> Σ(x<sub>i</sub> − x̄)(y<sub>i</sub> − ȳ) / Σ(x<sub>i</sub> − x̄)²
+                <br>
+                <span class="var">a</span> <span class="op">=</span> ȳ − <span class="var">b</span> · x̄
+            </div>
+        </div>
+    </div>
+
+    <!-- ИНТЕРАКТИВ -->
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-flask"></i> Практика: редактируйте данные прямо здесь</h2>
+        <p class="section-subtitle">Меняйте точки на графике, редактируйте таблицу — модель пересчитывается мгновенно.</p>
+
+        <div class="main-grid">
+            <!-- ГРАФИК -->
+            <div class="chart-panel">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-scatter"></i> Диаграмма рассеяния</h3>
+                    <div class="chart-legend">
+                        <div class="legend-item"><span class="legend-dot" style="background:#1976d2;"></span><span>Точки</span></div>
+                        <div class="legend-item"><span class="legend-line" style="background:#e53935;"></span><span>МНК</span></div>
+                        <div class="legend-item"><span class="legend-line" style="background:#8b5cf6;border-top:2px dashed #8b5cf6;"></span><span>Ручная</span></div>
+                        <div class="legend-item"><span class="legend-dot" style="background:#ffc107;"></span><span>Средняя</span></div>
+                    </div>
+                </div>
+
+                <!-- Тулбар режимов -->
+                <div class="chart-toolbar">
+                    <button class="mode-btn active" data-mode="drag" onclick="setMode('drag')" title="Перетаскивайте точки мышью">
+                        <i class="fas fa-hand-pointer"></i> Перетаскивание
+                    </button>
+                    <button class="mode-btn" data-mode="add" onclick="setMode('add')" title="Клик по пустому месту — добавить точку">
+                        <i class="fas fa-plus-circle"></i> Добавить точку
+                    </button>
+                    <button class="mode-btn" data-mode="delete" onclick="setMode('delete')" title="Клик по точке — удалить">
+                        <i class="fas fa-trash-alt"></i> Удалить
+                    </button>
+                    <div class="separator"></div>
+                    <button class="mode-btn" id="manualLineBtn" onclick="toggleManualLine()" title="Ручное управление прямой">
+                        <i class="fas fa-sliders-h"></i> Ручная линия
+                    </button>
+                    <span class="chart-hint" id="chartHint">Тяните за точки, чтобы двигать их</span>
+                </div>
+
+                <!-- Ручное управление линией -->
+                <div class="manual-line-controls" id="manualLineControls">
+                    <label for="aSlider">a:</label>
+                    <input type="range" id="aSlider" min="-10" max="10" step="0.01" value="0" oninput="onManualChange()">
+                    <span class="val" id="aSliderVal">0.00</span>
+
+                    <label for="bSlider">b:</label>
+                    <input type="range" id="bSlider" min="-5" max="5" step="0.001" value="1" oninput="onManualChange()">
+                    <span class="val" id="bSliderVal">1.000</span>
+
+                    <button class="mode-btn" onclick="applyManualToData()" title="Подогнать модель МНК">
+                        <i class="fas fa-magic"></i> МНК
+                    </button>
+                </div>
+
+                <svg id="regressionChart" viewBox="0 0 700 460" preserveAspectRatio="xMidYMid meet"></svg>
+
+                <div class="chart-info">
+                    <div class="chart-info-item">
+                        <div class="lbl">Уравнение</div>
+                        <div class="val" id="eqValue">ŷ = — + — x</div>
+                    </div>
+                    <div class="chart-info-item">
+                        <div class="lbl">R²</div>
+                        <div class="val" id="r2Value">—</div>
+                    </div>
+                    <div class="chart-info-item">
+                        <div class="lbl">r</div>
+                        <div class="val" id="rValue">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ТАБЛИЦА -->
+            <div class="table-panel">
+                <div class="table-header">
+                    <h3><i class="fas fa-table"></i> Данные наблюдений</h3>
+                    <div class="table-actions">
+                        <button class="tbl-btn" onclick="addRow()" title="Добавить строку">
+                            <i class="fas fa-plus"></i> <span>Добавить</span>
+                        </button>
+                        <button class="tbl-btn" onclick="pasteFromClipboard()" title="Вставить из буфера (формат: X\\tY)">
+                            <i class="fas fa-paste"></i> <span>Вставить</span>
+                        </button>
+                        <button class="tbl-btn" onclick="resetRows()" title="Сбросить данные">
+                            <i class="fas fa-rotate-left"></i> <span>Сбросить</span>
+                        </button>
+                        <button class="tbl-btn" onclick="removeLastRow()" title="Удалить последнюю">
+                            <i class="fas fa-minus"></i> <span>Удалить</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table" id="dataTable">
+                        <thead>
+                        <tr>
+                            <th style="width:45px;">№</th>
+                            <th class="sortable" data-sort="x" onclick="sortBy('x')">
+                                X <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-sort="y" onclick="sortBy('y')">
+                                Y <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th>ŷ</th>
+                            <th>Остаток</th>
+                        </tr>
+                        </thead>
+                        <tbody id="dataBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="table-footer">
+                    <div class="hint">
+                        <i class="fas fa-hand-pointer"></i>
+                        <span>Двойной клик — править · тянуть за ⠿ — двигать</span>
+                    </div>
+                    <div class="hint">
+                        <i class="fas fa-database"></i>
+                        <span id="rowCount">Точек: 12</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- РЕЗУЛЬТАТЫ -->
+        <div class="results-panel">
+            <div class="result-card">
+                <div class="rc-label"><i class="fas fa-arrow-up-right-dots"></i> Наклон b</div>
+                <div class="rc-value" id="bValue">—</div>
+                <div class="rc-sub">изменение y при +1 к x</div>
+            </div>
+            <div class="result-card">
+                <div class="rc-label"><i class="fas fa-arrows-to-dot"></i> Сдвиг a</div>
+                <div class="rc-value" id="aValue">—</div>
+                <div class="rc-sub">значение ŷ при x = 0</div>
+            </div>
+            <div class="result-card highlight">
+                <div class="rc-label"><i class="fas fa-bullseye"></i> R²</div>
+                <div class="rc-value" id="r2Big">—</div>
+                <div class="rc-sub">доля объяснённой дисперсии</div>
+            </div>
+            <div class="result-card">
+                <div class="rc-label"><i class="fas fa-chart-simple"></i> Корреляция r</div>
+                <div class="rc-value" id="rBig">—</div>
+                <div class="rc-sub">сила линейной связи</div>
+            </div>
+            <div class="result-card">
+                <div class="rc-label"><i class="fas fa-chart-line"></i> RMSE</div>
+                <div class="rc-value" id="rmseValue">—</div>
+                <div class="rc-sub">средняя ошибка прогноза</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ШАГИ -->
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-list-ol"></i> Как строится регрессия: пошагово</h2>
+        <p class="section-subtitle">Разберём на примере задачи «прогноз оценки по часам учёбы».</p>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h4>Собираем данные</h4>
+                    <p>У нас есть пары наблюдений (x, y): например, 12 студентов, у каждого известно, сколько часов в неделю он учится (x) и какой у него средний балл (y).</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h4>Считаем средние</h4>
+                    <p>Находим среднее по x и по y: <code>x̄</code> и <code>ȳ</code>. Это координаты «центра тяжести» облака точек — через него всегда проходит линия регрессии.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h4>Вычисляем наклон b</h4>
+                    <p>По формуле <code>b = Σ(x−x̄)(y−ȳ) / Σ(x−x̄)²</code>. Числитель — «ковариация», знаменатель — «дисперсия x».</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                    <h4>Находим сдвиг a</h4>
+                    <p>По формуле <code>a = ȳ − b · x̄</code>. Это гарантирует, что прямая пройдёт через точку (x̄, ȳ).</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">5</div>
+                <div class="step-content">
+                    <h4>Оцениваем качество модели</h4>
+                    <p>Считаем <code>R²</code> — долю дисперсии y, объяснённую моделью. Также смотрим на <code>RMSE</code> — среднюю ошибку в единицах y.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">6</div>
+                <div class="step-content">
+                    <h4>Проверяем остатки</h4>
+                    <p>Разница между фактическим y и предсказанным ŷ называется остатком. Хорошая модель имеет остатки, случайно распределённые вокруг нуля.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="warning-box">
+            <i class="fas fa-triangle-exclamation"></i>
+            <div>
+                <h4>Осторожно: ограничения линейной регрессии</h4>
+                <p>Линейная регрессия предполагает <strong>линейную</strong> связь. Если данные образуют кривую или кластеры, модель будет плохой. Также она чувствительна к выбросам. И помните: регрессия показывает связь, но не доказывает причинность.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- АРХИВ -->
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-bookmark"></i> Полезные материалы</h2>
+        <p class="section-subtitle">Динамический архив ссылок на дополнительные ресурсы по теме.</p>
+        <div class="archive-grid" id="archiveGrid"></div>
+        <div class="archive-info">
+            <i class="fas fa-circle-info"></i>
+            <span id="archiveStatus">Загрузка архива…</span>
+        </div>
+    </div>
+
+    <!-- ПОДВАЛ -->
+    <div class="footer">
+        <p>Интерактивный урок по линейной регрессии · Всё считается прямо в браузере на JavaScript</p>
+    </div>
+
+</div>
+
+<script>
+    // ============================================================
+    //  ДАННЫЕ
+    // ============================================================
+    const DEFAULT_DATA = [
+        { x: 5,  y: 3.2 }, { x: 8,  y: 3.5 }, { x: 10, y: 3.8 },
+        { x: 12, y: 4.0 }, { x: 14, y: 4.2 }, { x: 16, y: 4.3 },
+        { x: 18, y: 4.5 }, { x: 20, y: 4.6 }, { x: 22, y: 4.7 },
+        { x: 24, y: 4.8 }, { x: 26, y: 4.9 }, { x: 28, y: 5.0 }
+    ];
+
+    let data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+
+    // Ручная линия (используется только в режиме ручной линии)
+    let manualA = 0;
+    let manualB = 1;
+    let useManualLine = false;
+
+    // Режим графика
+    let mode = 'drag'; // drag | add | delete
+
+    // Состояние перетаскивания
+    let draggingPointIdx = -1;
+    let draggingLineMarker = null; // 'a' или 'b'
+
+    // Сортировка
+    let sortField = null;
+    let sortDir = 1;
+
+    // ============================================================
+    //  МАТЕМАТИКА
+    // ============================================================
+    function mean(arr) { return arr.reduce((a, b) => a + b, 0) / arr.length; }
+
+    function computeRegression() {
+        const xs = data.map(d => d.x);
+        const ys = data.map(d => d.y);
+        const n = data.length;
+
+        if (n < 2) {
+            return { a: 0, b: 0, r: 0, r2: 0, rmse: 0, yhats: [], residuals: [], mx: 0, my: 0, xs, ys, n };
+        }
+
+        const mx = mean(xs);
+        const my = mean(ys);
+
+        let num = 0, denX = 0, denY = 0;
+        for (let i = 0; i < n; i++) {
+            const dx = xs[i] - mx;
+            const dy = ys[i] - my;
+            num += dx * dy;
+            denX += dx * dx;
+            denY += dy * dy;
+        }
+
+        const b = denX === 0 ? 0 : num / denX;
+        const a = my - b * mx;
+
+        const r = (denX === 0 || denY === 0) ? 0 : num / Math.sqrt(denX * denY);
+        const r2 = r * r;
+
+        // Используем либо МНК, либо ручную линию
+        const useA = useManualLine ? manualA : a;
+        const useB = useManualLine ? manualB : b;
+
+        const yhats = xs.map(x => useA + useB * x);
+        const residuals = ys.map((y, i) => y - yhats[i]);
+
+        const mse = residuals.reduce((s, e) => s + e * e, 0) / n;
+        const rmse = Math.sqrt(mse);
+
+        return { a, b, r, r2, rmse, yhats, residuals, mx, my, xs, ys, n, useA, useB };
+    }
+
+    // ============================================================
+    //  РЕНДЕР ТАБЛИЦЫ
+    // ============================================================
+    function renderTable(stats) {
+        const tbody = document.getElementById('dataBody');
+        tbody.innerHTML = '';
+
+        data.forEach((point, i) => {
+            const tr = document.createElement('tr');
+            tr.draggable = true;
+            tr.dataset.row = i;
+
+            // № с ручкой
+            const tdNum = document.createElement('td');
+            tdNum.innerHTML = `<span class="drag-handle" title="Перетащить">⠿</span> ${i + 1}`;
+            tr.appendChild(tdNum);
+
+            // X
+            const tdX = document.createElement('td');
+            tdX.className = 'editable';
+            tdX.dataset.row = i;
+            tdX.dataset.field = 'x';
+            tdX.textContent = point.x;
+            tdX.ondblclick = () => editCell(tdX, i, 'x');
+            tr.appendChild(tdX);
+
+            // Y
+            const tdY = document.createElement('td');
+            tdY.className = 'editable';
+            tdY.dataset.row = i;
+            tdY.dataset.field = 'y';
+            tdY.textContent = point.y;
+            tdY.ondblclick = () => editCell(tdY, i, 'y');
+            tr.appendChild(tdY);
+
+            // ŷ
+            const tdYhat = document.createElement('td');
+            tdYhat.textContent = stats.yhats[i].toFixed(2);
+            tdYhat.style.color = '#1976d2';
+            tdYhat.style.fontWeight = '600';
+            tr.appendChild(tdYhat);
+
+            // Остаток
+            const tdRes = document.createElement('td');
+            const res = stats.residuals[i];
+            tdRes.textContent = (res >= 0 ? '+' : '') + res.toFixed(2);
+            tdRes.style.color = Math.abs(res) < 0.15 ? '#2e7d32' : (Math.abs(res) < 0.4 ? '#f57c00' : '#c62828');
+            tdRes.style.fontWeight = '600';
+            tr.appendChild(tdRes);
+
+            // Перетаскивание строк
+            tr.addEventListener('dragstart', (e) => {
+                tr.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', i);
+            });
+            tr.addEventListener('dragend', () => {
+                tr.classList.remove('dragging');
+                document.querySelectorAll('tr.drag-over').forEach(t => t.classList.remove('drag-over'));
+            });
+            tr.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                tr.classList.add('drag-over');
+            });
+            tr.addEventListener('dragleave', () => tr.classList.remove('drag-over'));
+            tr.addEventListener('drop', (e) => {
+                e.preventDefault();
+                tr.classList.remove('drag-over');
+                const fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                const toIdx = i;
+                if (fromIdx === toIdx) return;
+                const [moved] = data.splice(fromIdx, 1);
+                data.splice(toIdx, 0, moved);
+                updateAll();
+            });
+
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('rowCount').textContent = `Точек: ${data.length}`;
+    }
+
+    // ============================================================
+    //  РЕДАКТИРОВАНИЕ ЯЧЕЙКИ ТАБЛИЦЫ
+    // ============================================================
+    function editCell(td, rowIdx, field) {
+        if (td.classList.contains('editing')) return;
+        td.classList.add('editing');
+        const original = td.textContent;
+        td.innerHTML = '';
+
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.step = field === 'y' ? '0.1' : '1';
+        input.value = original;
+        td.appendChild(input);
+        input.focus();
+        input.select();
+
+        function commit() {
+            let val = parseFloat(input.value.replace(',', '.'));
+            if (isNaN(val)) val = parseFloat(original);
+            if (field === 'y') val = Math.round(val * 100) / 100;
+            else val = Math.round(val * 100) / 100;
+
+            data[rowIdx][field] = val;
+            td.classList.remove('editing');
+            td.textContent = val;
+            updateAll();
+        }
+
+        input.addEventListener('blur', commit);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+            if (e.key === 'Escape') { td.textContent = original; td.classList.remove('editing'); }
+        });
+    }
+
+    // ============================================================
+    //  ГРАФИК (SVG)
+    // ============================================================
+    const SVG_W = 700, SVG_H = 460;
+    const PAD = { top: 30, right: 40, bottom: 55, left: 65 };
+
+    let chartTransform = null; // будет хранить функции toSvgX/toSvgY и обратные
+
+    function renderChart(stats) {
+        const svg = document.getElementById('regressionChart');
+        const plotW = SVG_W - PAD.left - PAD.right;
+        const plotH = SVG_H - PAD.top - PAD.bottom;
+
+        const xs = stats.xs;
+        const ys = stats.ys;
+
+        if (!xs || xs.length === 0) {
+            svg.innerHTML = '<text x="350" y="230" text-anchor="middle" fill="#6b7f96" font-size="16">Нет данных</text>';
+            chartTransform = null;
+            return;
+        }
+
+        const xMin = Math.min(...xs);
+        const xMax = Math.max(...xs);
+        const yMin = Math.min(...ys);
+        const yMax = Math.max(...ys);
+
+        const xPad = (xMax - xMin) * 0.08 || 1;
+        const yPad = (yMax - yMin) * 0.12 || 1;
+
+        const xLo = xMin - xPad;
+        const xHi = xMax + xPad;
+        const yLo = Math.min(yMin, stats.useA + stats.useB * xLo) - yPad;
+        const yHi = Math.max(yMax, stats.useA + stats.useB * xHi) + yPad;
+
+        const toSvgX = (x) => PAD.left + ((x - xLo) / (xHi - xLo)) * plotW;
+        const toSvgY = (y) => PAD.top + plotH - ((y - yLo) / (yHi - yLo)) * plotH;
+        const fromSvgX = (px) => xLo + ((px - PAD.left) / plotW) * (xHi - xLo);
+        const fromSvgY = (py) => yLo + ((PAD.top + plotH - py) / plotH) * (yHi - yLo);
+
+        chartTransform = { toSvgX, toSvgY, fromSvgX, fromSvgY, xLo, xHi, yLo, yHi };
+
+        let html = '';
+
+        // Сетка Y
+        const yTicks = 6;
+        for (let i = 0; i <= yTicks; i++) {
+            const yVal = yLo + (yHi - yLo) * (i / yTicks);
+            const yy = toSvgY(yVal);
+            html += `<line x1="${PAD.left}" y1="${yy}" x2="${PAD.left + plotW}" y2="${yy}" stroke="#e8eef6" stroke-width="1"/>`;
+            html += `<text x="${PAD.left - 12}" y="${yy + 5}" text-anchor="end" fill="#6b7f96" font-size="12" font-family="JetBrains Mono, monospace">${yVal.toFixed(1)}</text>`;
+        }
+
+        // Сетка X
+        const xTicks = 7;
+        for (let i = 0; i <= xTicks; i++) {
+            const xVal = xLo + (xHi - xLo) * (i / xTicks);
+            const xx = toSvgX(xVal);
+            html += `<line x1="${xx}" y1="${PAD.top}" x2="${xx}" y2="${PAD.top + plotH}" stroke="#e8eef6" stroke-width="1"/>`;
+            html += `<text x="${xx}" y="${PAD.top + plotH + 22}" text-anchor="middle" fill="#6b7f96" font-size="12" font-family="JetBrains Mono, monospace">${xVal.toFixed(1)}</text>`;
+        }
+
+        // Оси
+        html += `<line x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}" y2="${PAD.top + plotH}" stroke="#94a8bf" stroke-width="2"/>`;
+        html += `<line x1="${PAD.left}" y1="${PAD.top + plotH}" x2="${PAD.left + plotW}" y2="${PAD.top + plotH}" stroke="#94a8bf" stroke-width="2"/>`;
+
+        // Подписи
+        html += `<text x="${PAD.left + plotW / 2}" y="${SVG_H - 8}" text-anchor="middle" fill="#4a5f7a" font-size="13" font-weight="600">X — часы учёбы в неделю</text>`;
+        html += `<text x="18" y="${PAD.top + plotH / 2}" text-anchor="middle" fill="#4a5f7a" font-size="13" font-weight="600" transform="rotate(-90, 18, ${PAD.top + plotH / 2})">Y — средний балл</text>`;
+
+        // Остатки
+        data.forEach((p, i) => {
+            const yhat = stats.yhats[i];
+            html += `<line x1="${toSvgX(p.x)}" y1="${toSvgY(p.y)}" x2="${toSvgX(p.x)}" y2="${toSvgY(yhat)}" stroke="#ffc107" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6"/>`;
+        });
+
+        // Линия МНК (красная) — если не ручной режим, это и есть основная линия
+        const x1Line = xLo, x2Line = xHi;
+        if (!useManualLine) {
+            const y1L = stats.a + stats.b * x1Line;
+            const y2L = stats.a + stats.b * x2Line;
+            html += `<line x1="${toSvgX(x1Line)}" y1="${toSvgY(y1L)}" x2="${toSvgX(x2Line)}" y2="${toSvgY(y2L)}" stroke="#e53935" stroke-width="2.5" opacity="0.9"/>`;
+        } else {
+            // Показываем и МНК (тонко), и ручную линию (жирно)
+            const y1L = stats.a + stats.b * x1Line;
+            const y2L = stats.a + stats.b * x2Line;
+            html += `<line x1="${toSvgX(x1Line)}" y1="${toSvgY(y1L)}" x2="${toSvgX(x2Line)}" y2="${toSvgY(y2L)}" stroke="#e53935" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.5"/>`;
+
+            const my1 = manualA + manualB * x1Line;
+            const my2 = manualA + manualB * x2Line;
+            html += `<line x1="${toSvgX(x1Line)}" y1="${toSvgY(my1)}" x2="${toSvgX(x2Line)}" y2="${toSvgY(my2)}" stroke="#8b5cf6" stroke-width="3"/>`;
+        }
+
+        // Средняя точка
+        html += `<circle cx="${toSvgX(stats.mx)}" cy="${toSvgY(stats.my)}" r="7" fill="#ffc107" stroke="#fff" stroke-width="2.5"/>`;
+
+        // Точки данных
+        data.forEach((p, i) => {
+            html += `<circle class="data-point" data-idx="${i}" cx="${toSvgX(p.x)}" cy="${toSvgY(p.y)}" r="8" fill="#1976d2" stroke="#fff" stroke-width="2.5" opacity="0.95" style="cursor: ${mode === 'delete' ? 'not-allowed' : (mode === 'add' ? 'crosshair' : 'grab')};"/>`;
+        });
+
+        svg.innerHTML = html;
+
+        // Вешаем обработчики
+        attachChartHandlers(svg);
+    }
+
+    // ============================================================
+    //  ОБРАБОТЧИКИ СОБЫТИЙ НА ГРАФИКЕ
+    // ============================================================
+    function attachChartHandlers(svg) {
+        // Найти/создать "фон" для клика
+        // Используем сам SVG для обработки кликов по пустому месту
+        svg.onmousedown = onChartMouseDown;
+        svg.onmousemove = onChartMouseMove;
+        svg.onmouseup = onChartMouseUp;
+        svg.onmouseleave = onChartMouseUp;
+        svg.oncontextmenu = (e) => {
+            e.preventDefault();
+            // Правый клик — удалить точку под курсором
+            const target = e.target;
+            if (target.classList.contains('data-point')) {
+                const idx = parseInt(target.dataset.idx, 10);
+                if (data.length > 2) {
+                    data.splice(idx, 1);
+                    updateAll();
+                } else {
+                    alert('Нужно минимум 2 точки для регрессии');
+                }
+            }
+        };
+    }
+
+    function getMouseSvgCoords(e) {
+        const svg = document.getElementById('regressionChart');
+        const rect = svg.getBoundingClientRect();
+        const px = ((e.clientX - rect.left) / rect.width) * SVG_W;
+        const py = ((e.clientY - rect.top) / rect.height) * SVG_H;
+        return { px, py };
+    }
+
+    function onChartMouseDown(e) {
+        const target = e.target;
+        const coords = getMouseSvgCoords(e);
+
+        if (mode === 'add') {
+            // Клик по пустому месту — добавить точку
+            if (!target.classList.contains('data-point')) {
+                if (!chartTransform) return;
+                const x = chartTransform.fromSvgX(coords.px);
+                const y = chartTransform.fromSvgY(coords.py);
+                data.push({
+                    x: Math.round(x * 10) / 10,
+                    y: Math.round(y * 100) / 100
+                });
+                updateAll();
+            }
+            return;
+        }
+
+        if (mode === 'delete') {
+            if (target.classList.contains('data-point')) {
+                const idx = parseInt(target.dataset.idx, 10);
+                if (data.length > 2) {
+                    data.splice(idx, 1);
+                    updateAll();
+                } else {
+                    alert('Нужно минимум 2 точки');
+                }
+            }
+            return;
+        }
+
+        // Режим "drag"
+        if (target.classList.contains('data-point')) {
+            draggingPointIdx = parseInt(target.dataset.idx, 10);
+            target.style.cursor = 'grabbing';
+        }
+    }
+
+    function onChartMouseMove(e) {
+        if (draggingPointIdx === -1) return;
+        if (!chartTransform) return;
+
+        const coords = getMouseSvgCoords(e);
+        const x = chartTransform.fromSvgX(coords.px);
+        const y = chartTransform.fromSvgY(coords.py);
+
+        data[draggingPointIdx].x = Math.round(x * 10) / 10;
+        data[draggingPointIdx].y = Math.round(y * 100) / 100;
+
+        // Быстрое обновление только визуала
+        renderChart(computeRegression());
+        // Обновляем таблицу и метрики
+        updateTableOnly();
+        updateMetricsOnly();
+    }
+
+    function onChartMouseUp(e) {
+        if (draggingPointIdx !== -1) {
+            const idx = draggingPointIdx;
+            draggingPointIdx = -1;
+            const el = document.querySelector(`circle.data-point[data-idx="${idx}"]`);
+            if (el) el.style.cursor = 'grab';
+            updateAll();
+        }
+        draggingLineMarker = null;
+    }
+
+    // ============================================================
+    //  РУЧНАЯ ЛИНИЯ
+    // ============================================================
+    function toggleManualLine() {
+        useManualLine = !useManualLine;
+        const btn = document.getElementById('manualLineBtn');
+        const controls = document.getElementById('manualLineControls');
+        btn.classList.toggle('active', useManualLine);
+        controls.classList.toggle('visible', useManualLine);
+
+        if (useManualLine) {
+            const stats = computeRegression();
+            manualA = parseFloat(stats.a.toFixed(2));
+            manualB = parseFloat(stats.b.toFixed(3));
+            document.getElementById('aSlider').value = manualA;
+            document.getElementById('bSlider').value = manualB;
+            document.getElementById('aSliderVal').textContent = manualA.toFixed(2);
+            document.getElementById('bSliderVal').textContent = manualB.toFixed(3);
+        }
+        updateAll();
+    }
+
+    function onManualChange() {
+        manualA = parseFloat(document.getElementById('aSlider').value);
+        manualB = parseFloat(document.getElementById('bSlider').value);
+        document.getElementById('aSliderVal').textContent = manualA.toFixed(2);
+        document.getElementById('bSliderVal').textContent = manualB.toFixed(3);
+        updateAll();
+    }
+
+    function applyManualToData() {
+        // Возвращаемся к МНК
+        useManualLine = false;
+        document.getElementById('manualLineBtn').classList.remove('active');
+        document.getElementById('manualLineControls').classList.remove('visible');
+        updateAll();
+    }
+
+    // ============================================================
+    //  РЕЖИМЫ
+    // ============================================================
+    function setMode(newMode) {
+        mode = newMode;
+        document.querySelectorAll('.mode-btn[data-mode]').forEach(b => {
+            b.classList.toggle('active', b.dataset.mode === newMode);
+        });
+        const hint = document.getElementById('chartHint');
+        if (newMode === 'drag') hint.textContent = 'Тяните точки мышью · правый клик — удалить';
+        if (newMode === 'add') hint.textContent = 'Клик по пустому месту — добавить точку';
+        if (newMode === 'delete') hint.textContent = 'Клик по точке — удалить';
+        renderChart(computeRegression());
+    }
+
+    // ============================================================
+    //  ОБНОВЛЕНИЕ МЕТРИК
+    // ============================================================
+    function updateMetricsOnly() {
+        const stats = computeRegression();
+        document.getElementById('aValue').textContent = stats.useA.toFixed(3);
+        document.getElementById('bValue').textContent = stats.useB.toFixed(3);
+
+        // Если ручная линия — пересчитываем R² и RMSE для неё
+        let r2show = stats.r2, rshow = stats.r;
+        let rmseShow = stats.rmse;
+
+        if (useManualLine) {
+            const ys = data.map(d => d.y);
+            const my = mean(ys);
+            const ssTot = ys.reduce((s, y) => s + (y - my) ** 2, 0);
+            const ssRes = stats.residuals.reduce((s, e) => s + e * e, 0);
+            r2show = ssTot === 0 ? 0 : 1 - ssRes / ssTot;
+            rshow = Math.sign(manualB) * Math.sqrt(Math.max(0, r2show));
+        }
+
+        document.getElementById('r2Big').textContent = r2show.toFixed(4);
+        document.getElementById('rBig').textContent = rshow.toFixed(4);
+        document.getElementById('rmseValue').textContent = rmseShow.toFixed(3);
+
+        const sign = stats.useB >= 0 ? '+' : '−';
+        const absB = Math.abs(stats.useB).toFixed(3);
+        document.getElementById('eqValue').textContent = `ŷ = ${stats.useA.toFixed(2)} ${sign} ${absB} x`;
+        document.getElementById('r2Value').textContent = r2show.toFixed(3);
+        document.getElementById('rValue').textContent = rshow.toFixed(3);
+    }
+
+    function updateTableOnly() {
+        const stats = computeRegression();
+        renderTable(stats);
+    }
+
+    function updateAll() {
+        const stats = computeRegression();
+        renderTable(stats);
+        renderChart(stats);
+        updateMetricsOnly();
+    }
+
+    // ============================================================
+    //  ДЕЙСТВИЯ ТАБЛИЦЫ
+    // ============================================================
+    function addRow() {
+        const lastX = data.length > 0 ? data[data.length - 1].x : 0;
+        const lastY = data.length > 0 ? data[data.length - 1].y : 3;
+        data.push({ x: lastX + 2, y: Math.round((lastY + 0.1) * 100) / 100 });
+        updateAll();
+        const tbody = document.getElementById('dataBody');
+        const lastTr = tbody.lastElementChild;
+        if (lastTr) {
+            lastTr.classList.add('row-new');
+            setTimeout(() => lastTr.classList.remove('row-new'), 1200);
+        }
+    }
+
+    function removeLastRow() {
+        if (data.length <= 2) {
+            alert('Нужно хотя бы 2 точки для построения регрессии');
+            return;
+        }
+        data.pop();
+        updateAll();
+    }
+
+    function resetRows() {
+        if (!confirm('Вернуть исходные данные?')) return;
+        data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        useManualLine = false;
+        document.getElementById('manualLineBtn').classList.remove('active');
+        document.getElementById('manualLineControls').classList.remove('visible');
+        sortField = null; sortDir = 1;
+        document.querySelectorAll('th.sortable').forEach(th => th.classList.remove('sorted'));
+        updateAll();
+    }
+
+    function sortBy(field) {
+        if (sortField === field) sortDir *= -1;
+        else { sortField = field; sortDir = 1; }
+        data.sort((a, b) => (a[field] - b[field]) * sortDir);
+        document.querySelectorAll('th.sortable').forEach(th => {
+            th.classList.toggle('sorted', th.dataset.sort === field);
+            const icon = th.querySelector('.sort-icon');
+            if (icon) {
+                icon.className = 'fas sort-icon ' + (th.dataset.sort === field
+                    ? (sortDir > 0 ? 'fa-sort-up' : 'fa-sort-down')
+                    : 'fa-sort');
+            }
+        });
+        updateAll();
+    }
+
+    async function pasteFromClipboard() {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (!text.trim()) return;
+            const lines = text.trim().split(/\r?\n/);
+            let added = 0;
+            for (const line of lines) {
+                const parts = line.split(/[\t;,\s]+/).filter(Boolean);
+                if (parts.length >= 2) {
+                    const x = parseFloat(parts[0].replace(',', '.'));
+                    const y = parseFloat(parts[1].replace(',', '.'));
+                    if (!isNaN(x) && !isNaN(y)) {
+                        data.push({ x, y });
+                        added++;
+                    }
+                }
+            }
+            if (added > 0) {
+                updateAll();
+                alert(`Добавлено точек: ${added}`);
+            } else {
+                alert('Не удалось распознать данные. Формат: X<таб>Y или X;Y');
+            }
+        } catch (err) {
+            alert('Не удалось прочитать буфер обмена. Разрешите доступ или введите данные вручную.');
+        }
+    }
+
+    // ============================================================
+    //  АРХИВ ССЫЛОК
+    // ============================================================
+    const ARCHIVE_LINKS = [
+        {
+            url: 'https://evgeniy43ru.gitverse.site/blog',
+            title: 'Блог о данных и аналитике',
+            description: 'Статьи о статистике, визуализации данных и практических подходах к анализу.',
+            tag: 'Блог', tagClass: 'tag-blog',
+            icon: 'fas fa-pen-fancy',
+            displayUrl: 'evgeniy43ru.gitverse.site/blog'
+        },
+        {
+            url: 'https://gitverse.ru/Evgeniy43ru/SQL',
+            title: 'SQL-репозиторий на GitVerse',
+            description: 'Коллекция SQL-запросов, примеров и учебных материалов.',
+            tag: 'SQL', tagClass: 'tag-sql',
+            icon: 'fas fa-database',
+            displayUrl: 'gitverse.ru/Evgeniy43ru/SQL'
+        },
+        {
+            url: 'https://evgeniy43ru.gitverse.site/excel/',
+            title: 'Excel-инструменты и уроки',
+            description: 'Практические руководства по Excel: формулы, сводные таблицы, диаграммы.',
+            tag: 'Excel', tagClass: 'tag-excel',
+            icon: 'fas fa-file-excel',
+            displayUrl: 'evgeniy43ru.gitverse.site/excel'
+        }
+    ];
+
+    function getClickCount(url) {
+        try { return parseInt(localStorage.getItem('arch_' + btoa(url).slice(0, 20)) || '0', 10); }
+        catch (e) { return 0; }
+    }
+
+    function incrementClickCount(url) {
+        try {
+            const key = 'arch_' + btoa(url).slice(0, 20);
+            const c = getClickCount(url) + 1;
+            localStorage.setItem(key, String(c));
+            return c;
+        } catch (e) { return 0; }
+    }
+
+    function renderArchive() {
+        const grid = document.getElementById('archiveGrid');
+        const status = document.getElementById('archiveStatus');
+        grid.innerHTML = '';
+
+        setTimeout(() => {
+            ARCHIVE_LINKS.forEach((link, i) => {
+                const card = document.createElement('a');
+                card.href = link.url;
+                card.target = '_blank';
+                card.rel = 'noopener noreferrer';
+                card.className = 'archive-card';
+                card.style.animation = `fadeInUp 0.5s ease-out ${i * 0.12}s both`;
+
+                const clicks = getClickCount(link.url);
+                card.innerHTML = `
+                    <div class="arch-counter"><i class="fas fa-eye"></i> ${clicks}</div>
+                    <div class="arch-icon"><i class="${link.icon}"></i></div>
+                    <span class="arch-tag ${link.tagClass}"><i class="fas fa-tag"></i> ${link.tag}</span>
+                    <h4>${link.title}</h4>
+                    <p>${link.description}</p>
+                    <div class="arch-url">
+                        <span>${link.displayUrl}</span>
+                        <i class="fas fa-arrow-up-right-from-square"></i>
+                    </div>
+                `;
+
+                card.addEventListener('click', () => {
+                    const c = incrementClickCount(link.url);
+                    const counter = card.querySelector('.arch-counter');
+                    if (counter) counter.innerHTML = `<i class="fas fa-eye"></i> ${c}`;
+                });
+
+                grid.appendChild(card);
+            });
+            status.textContent = `Загружено ${ARCHIVE_LINKS.length} ресурсов · клик открывает в новой вкладке`;
+        }, 200);
+    }
+
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    `;
+    document.head.appendChild(styleEl);
+
+    // ============================================================
+    //  ИНИЦИАЛИЗАЦИЯ
+    // ============================================================
+    updateAll();
+    renderArchive();
+</script>
+</body>
+</html>
